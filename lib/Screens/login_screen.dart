@@ -1,4 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'dart:convert'; // Required for jsonDecode
+import 'package:http/http.dart' as http; // Required for API calls
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,18 +16,65 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _login() {
+  final String _mockApiBaseUrl = 'https://68f34f12fd14a9fcc428651a.mockapi.io/user'; 
+
+  void _login() async { 
     if (_formKey.currentState!.validate()) {
-      
-      if (_emailController.text == 'test@studysync.com' && _passwordController.text == 'password') {
+      final email = _emailController.text;
+      final password = _passwordController.text;
+
+      try {
+        final url = Uri.parse('$_mockApiBaseUrl?email=$email');
+        final response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          final List<dynamic> users = jsonDecode(response.body);
+
+          if (users.isNotEmpty) {
+            final Map<String, dynamic> user = users.first; 
+            
+            final storedPassword = user['password'] as String?; 
+            final storedName = user['fname'] as String?; 
+            
+            if (storedPassword != null && storedPassword == password) {
+              
+              final userName = (storedName?.isNotEmpty == true) ? storedName! : 'Student';
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Login Successful! Welcome back, $userName.')),
+              );
+              
+              
+              Navigator.pushNamedAndRemoveUntil(
+                context, 
+                '/app_shell', 
+                (route) => false,
+                arguments: { 
+                  'isLoggedIn': true,
+                  'userName': userName,
+                },
+              );
+              
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Invalid Credentials. Please try again.')),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('User not found. Please sign up.')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login Failed. Server error: ${response.statusCode}')),
+          );
+        }
+      } catch (e, st) {
+        print('LOGIN ERROR: $e');
+        print('STACK TRACE: $st');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful! Welcome back.')),
-        );
-        // Navigate to the main app screen and clear the navigation stack
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid Credentials. Please try again.')),
+          SnackBar(content: Text('An unexpected error occurred during login. Check console for details.')),
         );
       }
     }
@@ -77,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Login Button
               ElevatedButton(
-                onPressed: _login,
+                onPressed: _login, 
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: Colors.blue,

@@ -32,8 +32,8 @@ class DrawerMenu extends StatelessWidget {
               title: const Text('Home'),
               onTap: () {
                 Navigator.pop(context); 
-                // Navigate to the Dashboard/Home screen
-                Navigator.pushReplacementNamed(context, '/home'); 
+                // Navigate to the main application shell and clear all other routes
+                Navigator.pushNamedAndRemoveUntil(context, '/app_shell', (route) => false); 
               },
             ),
             // Courses (Program Listing)
@@ -74,7 +74,6 @@ class DrawerMenu extends StatelessWidget {
             ),
           ] 
           
-          // --- Logged Out Menu (Auth Options) ---
           else ...[
             ListTile(
               leading: const Icon(Icons.login),

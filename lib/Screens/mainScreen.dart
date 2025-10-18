@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import './drawer_menu.dart'; 
 
@@ -6,10 +8,9 @@ const primaryColor1 = Colors.blue;
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});
 
-  // Static method to easily access and change the state from SignUpScreen
-  // ignore: library_private_types_in_public_api
-  static _MainscreenState of(BuildContext context) => 
-      context.findAncestorStateOfType<_MainscreenState>()!;
+  // Static method to safely access and change the state (kept for safety/legacy)
+  static _MainscreenState? of(BuildContext context) => 
+      context.findAncestorStateOfType<_MainscreenState>();
 
   @override
   State<Mainscreen> createState() => _MainscreenState();
@@ -19,8 +20,34 @@ class _MainscreenState extends State<Mainscreen> {
   int _selectedIndex = 1; // Start on the 'Learning' tab (index 1), which will be the Dashboard
   bool _isLoggedIn = false; 
   String _userName = 'Student'; // Placeholder for the user's name
+  
+  bool _didInit = false; // Flag to ensure the check runs only once
 
-  // Public method to be called from SignUpScreen
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInit) {
+      _didInit = true;
+      _checkLoginArguments();
+    }
+  }
+
+  void _checkLoginArguments() {
+    // ModalRoute.of(context) gives us access to the arguments passed during navigation
+    final args = ModalRoute.of(context)?.settings.arguments;
+    
+    // Check if arguments were passed after a successful login
+    if (args != null && args is Map<String, dynamic> && args['isLoggedIn'] == true) {
+      // Use setState to update the state of the NEW Mainscreen instance
+      setState(() {
+        _isLoggedIn = true;
+        _userName = args['userName'] as String? ?? 'Student';
+        _selectedIndex = 1; // Ensure the user lands on the dashboard tab
+      });
+    }
+  }
+
+  // Public method to be called from Login/SignUp Screen (kept for safety)
   void setLoggedIn(bool value, {String? name}) {
     setState(() {
       _isLoggedIn = value;
@@ -124,8 +151,8 @@ class _MainscreenState extends State<Mainscreen> {
         elevation: 1, 
       ),
       
-      // Drawer Menu (Conditional links based on _isLoggedIn)
-      endDrawer: DrawerMenu(isLoggedIn: _isLoggedIn),
+      // Drawer Menu: Direct reference to the state variable.
+      endDrawer: DrawerMenu(isLoggedIn: _isLoggedIn), 
       
       // Body content changes based on the BottomNavigationBar
       body: bodyWidgets.elementAt(_selectedIndex),

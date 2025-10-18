@@ -42,7 +42,6 @@ class StudySyncApp extends StatelessWidget {
         '/signup': (context) => const SignUpScreen(),
         
         // Content Routes (Used by the Bottom/Drawer menus)
-        '/home': (context) => const HomeScreen(), 
         '/profile': (context) => const ProfileScreen(), 
         '/settings': (context) => const SettingsScreen(),
         '/programs': (context) => const ProgramListingScreen(),
@@ -52,7 +51,7 @@ class StudySyncApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         appBarTheme: const AppBarTheme(
-          color: Colors.white,
+          backgroundColor: Colors.white,
           iconTheme: IconThemeData(color: Colors.blue),
           titleTextStyle: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
           elevation: 1,

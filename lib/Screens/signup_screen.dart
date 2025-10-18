@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'mainScreen.dart'; // Import the mainScreen to access its state method
+// import 'mainScreen.dart'; // Import the mainScreen to access its state method
+import 'dart:convert'; // Required for jsonEncode
+import 'package:http/http.dart' as http; // Required for API calls
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -17,6 +19,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _selectedProfession; 
   final List<String> _professions = ['Learner (Student)', 'Educator (Teacher/Tutor)']; 
 
+  final String _mockApiUrl = 'https://68f34f12fd14a9fcc428651a.mockapi.io/user';
+  
   @override
   void dispose() {
     _nameController.dispose();
@@ -26,19 +30,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void _signUp() {
+  void _signUp() async { // <--- Made asynchronous
     if (_formKey.currentState!.validate()) {
-      // 1. Logic for Sign Up (Database/API call goes here)
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sign Up Successful! Navigating to Home...')),
-      );
-      
-      
-      Mainscreen.of(context).setLoggedIn(true, name: _nameController.text);
+      try {
+        final response = await http.post(
+          Uri.parse(_mockApiUrl),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            // Fields match your schema: fname, email, password, Proffesion
+            'fname': _nameController.text, 
+            'email': _emailController.text,
+            'password': _passwordController.text,
+            'Proffesion': _selectedProfession!, 
+          }),
+        );
 
-     
-      Navigator.pushNamedAndRemoveUntil(context, '/app_shell', (route) => false); 
+        if (response.statusCode == 201) { // 201 Created means successful resource creation
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sign Up Successful! Please log in.')),
+          );
+          
+          // Navigate to Login Screen
+          Navigator.pushReplacementNamed(context, '/login'); 
+
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Sign Up Failed. Server response: ${response.statusCode}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error during sign up: $e')),
+        );
+      }
     }
   }
 
