@@ -34,12 +34,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SnackBar(content: Text('Sign Up Successful! Navigating to Home...')),
       );
       
-      // 2. IMPORTANT: Update the login state of the Mainscreen, 
-      //    and pass the user's name.
+      
       Mainscreen.of(context).setLoggedIn(true, name: _nameController.text);
 
-      // 3. Navigate back to the main app shell and remove history
-      //    We use '/app_shell' which is the route for Mainscreen.
+     
       Navigator.pushNamedAndRemoveUntil(context, '/app_shell', (route) => false); 
     }
   }
