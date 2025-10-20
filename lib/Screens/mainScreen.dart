@@ -109,19 +109,19 @@ class _MainscreenState extends State<Mainscreen> {
       Course(
         id: 'c1',
         title: 'Flutter for Beginners',
-        instructor: 'Jane Doe',
+        instructor: 'Pavan Makwana',
         description: 'Get started with Flutter: widgets, layouts, and basic app structure.',
       ),
       Course(
         id: 'c2',
         title: 'State Management in Flutter',
-        instructor: 'Alex Rivera',
+        instructor: 'Ian Maina',
         description: 'Learn Provider, Riverpod, and Bloc patterns to manage app state efficiently.',
       ),
       Course(
         id: 'c3',
         title: 'Building Responsive UIs with Flutter',
-        instructor: 'Sam Patel',
+        instructor: 'Sai Rishitha',
         description: 'Techniques for adaptive layouts, media queries, and platform-aware design.',
       ),
     ]);
